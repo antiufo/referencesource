@@ -32,7 +32,7 @@ namespace System.CodeDom {
         private CodeCommentStatementCollection comments = new CodeCommentStatementCollection();
         private CodeTypeDeclarationCollection classes = new CodeTypeDeclarationCollection();
         private CodeNamespaceCollection namespaces = new CodeNamespaceCollection();
-        
+
         private int  populated = 0x0;
         private const int ImportsCollection = 0x1;
         private const int CommentsCollection = 0x2;
@@ -92,8 +92,7 @@ namespace System.CodeDom {
             Name = name;
         }
 
-        private CodeNamespace(SerializationInfo info, StreamingContext context) {
-        }
+ 
 
         /// <devdoc>
         ///    <para>

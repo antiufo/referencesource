@@ -7,7 +7,6 @@
 //------------------------------------------------------------------------------
 
 namespace System.CodeDom.Compiler {
-    using System.Runtime.Remoting;
     using System.Runtime.InteropServices;
 
     using System.Diagnostics;
@@ -18,15 +17,12 @@ namespace System.CodeDom.Compiler {
     using System.Reflection;
     using System.Globalization;
     using System.CodeDom;
-    using System.Security.Permissions;
     using System.Text;
     
     /// <devdoc>
     ///    <para>Provides a base class for code generators.</para>
     /// </devdoc>
-    [PermissionSet(SecurityAction.LinkDemand, Name="FullTrust")]
-    [PermissionSet(SecurityAction.InheritanceDemand, Name="FullTrust")]
-    public abstract class CodeGenerator : ICodeGenerator {
+     public abstract class CodeGenerator : ICodeGenerator {
         private const int ParameterMultilineThreshold = 15;        
         private IndentedTextWriter output;
         private CodeGeneratorOptions options;
@@ -387,7 +383,7 @@ namespace System.CodeDom.Compiler {
         void ICodeGenerator.GenerateCodeFromType(CodeTypeDeclaration e, TextWriter w, CodeGeneratorOptions o) {
             bool setLocal = false;
             if (output != null && w != output.InnerWriter) {
-                throw new InvalidOperationException(SR.GetString(SR.CodeGenOutputWriter));
+                throw new InvalidOperationException("CodeGenOutputWriter");
             }
             if (output == null) {
                 setLocal = true;
@@ -410,7 +406,7 @@ namespace System.CodeDom.Compiler {
         void ICodeGenerator.GenerateCodeFromExpression(CodeExpression e, TextWriter w, CodeGeneratorOptions o) {
             bool setLocal = false;
             if (output != null && w != output.InnerWriter) {
-                throw new InvalidOperationException(SR.GetString(SR.CodeGenOutputWriter));
+                throw new InvalidOperationException("CodeGenOutputWriter");
             }
             if (output == null) {
                 setLocal = true;
@@ -433,7 +429,7 @@ namespace System.CodeDom.Compiler {
         void ICodeGenerator.GenerateCodeFromCompileUnit(CodeCompileUnit e, TextWriter w, CodeGeneratorOptions o) {
             bool setLocal = false;
             if (output != null && w != output.InnerWriter) {
-                throw new InvalidOperationException(SR.GetString(SR.CodeGenOutputWriter));
+                throw new InvalidOperationException("CodeGenOutputWriter");
             }
             if (output == null) {
                 setLocal = true;
@@ -461,7 +457,7 @@ namespace System.CodeDom.Compiler {
         void ICodeGenerator.GenerateCodeFromNamespace(CodeNamespace e, TextWriter w, CodeGeneratorOptions o) {
             bool setLocal = false;
             if (output != null && w != output.InnerWriter) {
-                throw new InvalidOperationException(SR.GetString(SR.CodeGenOutputWriter));
+                throw new InvalidOperationException("CodeGenOutputWriter");
             }
             if (output == null) {
                 setLocal = true;
@@ -484,7 +480,7 @@ namespace System.CodeDom.Compiler {
         void ICodeGenerator.GenerateCodeFromStatement(CodeStatement e, TextWriter w, CodeGeneratorOptions o) {
             bool setLocal = false;
             if (output != null && w != output.InnerWriter) {
-                throw new InvalidOperationException(SR.GetString(SR.CodeGenOutputWriter));
+                throw new InvalidOperationException("CodeGenOutputWriter");
             }
             if (output == null) {
                 setLocal = true;
@@ -505,7 +501,7 @@ namespace System.CodeDom.Compiler {
         
         public virtual void GenerateCodeFromMember(CodeTypeMember member, TextWriter writer, CodeGeneratorOptions options) {
             if (this.output != null) {
-                throw new InvalidOperationException(SR.GetString(SR.CodeGenReentrance));
+                throw new InvalidOperationException("CodeGenReentrance");
             }
             this.options = (options == null) ? new CodeGeneratorOptions() : options;
             this.output = new IndentedTextWriter(writer, this.options.IndentString);
@@ -679,7 +675,7 @@ namespace System.CodeDom.Compiler {
                     throw new ArgumentNullException("e");
                 }
                 else {
-                    throw new ArgumentException(SR.GetString(SR.InvalidElementType, e.GetType().FullName), "e");
+                    throw new ArgumentException("InvalidElementType: "+ e.GetType().FullName);
                 }
             }
         }
@@ -945,7 +941,7 @@ namespace System.CodeDom.Compiler {
                 GenerateLabeledStatement((CodeLabeledStatement)e);
             }
             else {
-                throw new ArgumentException(SR.GetString(SR.InvalidElementType, e.GetType().FullName), "e");
+                throw new ArgumentException("InvalidElementType: " + e.GetType().FullName);
             }
 
             if (e.LinePragma != null) {
@@ -1535,7 +1531,7 @@ namespace System.CodeDom.Compiler {
                 }
             }
             else {
-                throw new ArgumentException(SR.GetString(SR.InvalidPrimitiveType, e.Value.GetType().ToString()));
+                throw new ArgumentException("InvalidPrimitiveType: " + e.Value.GetType().ToString());
             }
         }
 
@@ -1636,7 +1632,7 @@ namespace System.CodeDom.Compiler {
         /// </devdoc>
         protected virtual void GenerateCommentStatement(CodeCommentStatement e) {
             if(e.Comment == null)
-                throw new ArgumentException(SR.GetString(SR.Argument_NullComment, "e"), "e");
+                throw new ArgumentException("Argument_NullComment");
             GenerateComment(e.Comment);
         }
 
@@ -1881,7 +1877,7 @@ namespace System.CodeDom.Compiler {
         /// </devdoc>
         protected virtual void ValidateIdentifier(string value) {
             if (!IsValidIdentifier(value)) {
-                throw new ArgumentException(SR.GetString(SR.InvalidIdentifier, value));
+                throw new ArgumentException("InvalidIdentifier: "+ value);
             }
         }
 
@@ -1933,7 +1929,7 @@ namespace System.CodeDom.Compiler {
             // 
             for(int i = 0; i < value.Length; i++) {
                 char ch = value[i];
-                UnicodeCategory uc = Char.GetUnicodeCategory(ch);
+                UnicodeCategory uc = CharUnicodeInfo.GetUnicodeCategory(ch);
                 switch (uc) {
                     case UnicodeCategory.UppercaseLetter:        // Lu
                     case UnicodeCategory.LowercaseLetter:        // Ll
@@ -1993,16 +1989,16 @@ namespace System.CodeDom.Compiler {
             return false;
         }
 
-        /// <devdoc>
-        ///    <para>
-        ///       Validates a tree to check if all the types and idenfier names follow the rules of an identifier
-        ///       in a langauge independent manner.
-        ///    </para>
-        /// </devdoc>
-        public static void ValidateIdentifiers(CodeObject e) {
-            CodeValidator codeValidator = new CodeValidator(); // This has internal state and hence is not static
-            codeValidator.ValidateIdentifiers(e);
-        }
+        ///// <devdoc>
+        /////    <para>
+        /////       Validates a tree to check if all the types and idenfier names follow the rules of an identifier
+        /////       in a langauge independent manner.
+        /////    </para>
+        ///// </devdoc>
+        //public static void ValidateIdentifiers(CodeObject e) {
+        //    CodeValidator codeValidator = new CodeValidator(); // This has internal state and hence is not static
+        //    codeValidator.ValidateIdentifiers(e);
+        //}
 
     }
 }

@@ -26,22 +26,30 @@ namespace System.CodeDom {
     public class CodeObject {
         private IDictionary userData = null;
 
+        public IDictionary UserData
+        {
+            get
+            {
+                return userData ?? (userData = new Hashtable());
+            }
+        }
+
         /// <devdoc>
         ///    <para>[To be supplied.]</para>
         /// </devdoc>
         public CodeObject() {
         }
 
-        /// <devdoc>
-        ///    <para>[To be supplied.]</para>
-        /// </devdoc>
-        public IDictionary UserData {
-            get {
-                if (userData == null) {
-                    userData = new ListDictionary();
-                }
-                return userData;
-            }
-        }
+        ///// <devdoc>
+        /////    <para>[To be supplied.]</para>
+        ///// </devdoc>
+        //public IDictionary UserData {
+        //    get {
+        //        if (userData == null) {
+        //            userData = new ListDictionary();
+        //        }
+        //        return userData;
+        //    }
+        //}
     }
 }

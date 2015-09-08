@@ -1,0 +1,5 @@
+﻿syntax: glob
+
+System/compmod/obj/
+System/compmod/bin/
+System/compmod/.vs/

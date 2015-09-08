@@ -15,7 +15,8 @@ namespace System.CodeDom {
     using System.Runtime.InteropServices;
     using System.Runtime.Serialization;
     using System.Globalization;
-    
+    using System.Reflection;
+
     [ 
         ComVisible(true), 
         Serializable,
@@ -69,7 +70,7 @@ namespace System.CodeDom {
                 this.arrayElementType = null;
             }
 
-            this.isInterface = type.IsInterface;
+            this.isInterface = type.GetTypeInfo().IsInterface;
         }
 
         public CodeTypeReference (Type type, CodeTypeReferenceOptions codeTypeReferenceOption) : this(type) {
@@ -102,15 +103,15 @@ namespace System.CodeDom {
                 if (!String.IsNullOrEmpty(type.Namespace))
                     baseType = type.Namespace + "." + baseType;
             }
-
+            var typeinfo = type.GetTypeInfo();
             // pick up the type arguments from an instantiated generic type but not an open one    
-            if (type.IsGenericType && !type.ContainsGenericParameters) {
-                Type[] genericArgs = type.GetGenericArguments();
+            if (typeinfo.IsGenericType && !typeinfo.ContainsGenericParameters) {
+                Type[] genericArgs = typeinfo.GenericTypeArguments;
                 for (int i = 0; i < genericArgs.Length; i++) {
                     TypeArguments.Add(new CodeTypeReference(genericArgs[i]));
                 }
             }
-            else if (!type.IsGenericTypeDefinition) 
+            else if (!typeinfo.IsGenericTypeDefinition) 
             {
                 // if the user handed us a non-generic type, but later
                 // appends generic type arguments, we'll pretend

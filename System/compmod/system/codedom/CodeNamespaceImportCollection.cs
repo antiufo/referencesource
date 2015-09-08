@@ -164,7 +164,7 @@ namespace System.CodeDom {
 
         /// <internalonly/>
         void ICollection.CopyTo(Array array, int index) {
-            data.CopyTo(array, index);
+            data.CopyTo((object[])array, index);
         }
 
         /// <internalonly/>

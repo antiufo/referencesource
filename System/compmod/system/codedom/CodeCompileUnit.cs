@@ -15,6 +15,7 @@ namespace System.CodeDom {
     using System.Collections.Specialized;
     using System.Runtime.Serialization;
     using System.Runtime.InteropServices;
+    using Collections.Generic;
 
     /// <devdoc>
     ///    <para>
@@ -65,7 +66,7 @@ namespace System.CodeDom {
         ///       and the compiler assemblies are specified, the compiler assemblies should win.
         ///    </para>
         /// </devdoc>
-        public StringCollection ReferencedAssemblies {
+        public List<string> ReferencedAssemblies {
             get {
                 if (assemblies == null) {
                     assemblies = new StringCollection();

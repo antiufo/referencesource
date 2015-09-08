@@ -10,6 +10,7 @@
 
 namespace System.Collections {
     using System;
+    using Generic;
     using System.Diagnostics.Contracts;
 
     // Useful base class for typed read/write collections where items derive from object
@@ -27,7 +28,7 @@ namespace System.Collections {
         }
 
 
-        protected ArrayList InnerList { 
+        protected List<object> InnerList { 
             get { 
                 if (list == null)
                     list = new ArrayList();
@@ -64,7 +65,7 @@ namespace System.Collections {
 
         public void RemoveAt(int index) {
             if (index < 0 || index >= Count)
-                throw new ArgumentOutOfRangeException("index", Environment.GetResourceString("ArgumentOutOfRange_Index"));
+                throw new ArgumentOutOfRangeException("index", Environment_.GetResourceString("ArgumentOutOfRange_Index"));
             Contract.EndContractBlock();
             Object temp = InnerList[index];
             OnValidate(temp);
@@ -81,35 +82,35 @@ namespace System.Collections {
         }
 
         bool IList.IsReadOnly {
-            get { return InnerList.IsReadOnly; }
+            get { return false; }
         }
 
         bool IList.IsFixedSize {
-            get { return InnerList.IsFixedSize; }
+            get { return false; }
         }
 
         bool ICollection.IsSynchronized {
-            get { return InnerList.IsSynchronized; }
+            get { return false; }
         }
 
         Object ICollection.SyncRoot {
-            get { return InnerList.SyncRoot; }
+            get { throw new NotSupportedException(); }
         }
 
         void ICollection.CopyTo(Array array, int index) {
-            InnerList.CopyTo(array, index);
+            InnerList.CopyTo((object[])array, index);
         }
 
         Object IList.this[int index] {
             get { 
                 if (index < 0 || index >= Count)
-                    throw new ArgumentOutOfRangeException("index", Environment.GetResourceString("ArgumentOutOfRange_Index"));
+                    throw new ArgumentOutOfRangeException("index", Environment_.GetResourceString("ArgumentOutOfRange_Index"));
                 Contract.EndContractBlock();
                 return InnerList[index]; 
             }
             set { 
                 if (index < 0 || index >= Count)
-                    throw new ArgumentOutOfRangeException("index", Environment.GetResourceString("ArgumentOutOfRange_Index"));
+                    throw new ArgumentOutOfRangeException("index", Environment_.GetResourceString("ArgumentOutOfRange_Index"));
                 Contract.EndContractBlock();
                 OnValidate(value);
                 Object temp = InnerList[index];
@@ -132,7 +133,8 @@ namespace System.Collections {
         int IList.Add(Object value) {
             OnValidate(value);
             OnInsert(InnerList.Count, value);
-            int index = InnerList.Add(value);
+            InnerList.Add(value);
+            var index = InnerList.Count - 1;
             try {
                 OnInsertComplete(index, value);
             }
@@ -147,7 +149,7 @@ namespace System.Collections {
         void IList.Remove(Object value) {
             OnValidate(value);
             int index = InnerList.IndexOf(value);
-            if (index < 0) throw new ArgumentException(Environment.GetResourceString("Arg_RemoveArgNotFound"));
+            if (index < 0) throw new ArgumentException(Environment_.GetResourceString("Arg_RemoveArgNotFound"));
             OnRemove(index, value);
             InnerList.RemoveAt(index);
             try{
@@ -165,7 +167,7 @@ namespace System.Collections {
 
         void IList.Insert(int index, Object value) {
             if (index < 0 || index > Count)
-                throw new ArgumentOutOfRangeException("index", Environment.GetResourceString("ArgumentOutOfRange_Index"));
+                throw new ArgumentOutOfRangeException("index", Environment_.GetResourceString("ArgumentOutOfRange_Index"));
             Contract.EndContractBlock();
             OnValidate(value);
             OnInsert(index, value);

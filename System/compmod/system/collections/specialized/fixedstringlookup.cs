@@ -67,7 +67,7 @@ namespace System.Collections.Specialized {
             char searchChar;
             while (pos < value.Length) {            
                 if (ignoreCase) {
-                    searchChar = char.ToLower(value[pos], CultureInfo.InvariantCulture);
+                    searchChar = char.ToLowerInvariant(value[pos]);
                 } else {
                     searchChar = value[pos];
                 }

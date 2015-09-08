@@ -11,7 +11,7 @@ namespace System.CodeDom.Compiler {
     using System.CodeDom;
     using System.Collections;
     using System.Collections.Specialized;
-    using System.Security.Permissions;
+   // using System.Security.Permissions;
 
 
     /// <devdoc>
@@ -19,10 +19,10 @@ namespace System.CodeDom.Compiler {
     ///       Represents options used in code generation
     ///    </para>
     /// </devdoc>
-    [PermissionSet(SecurityAction.LinkDemand, Name="FullTrust")]
-    [PermissionSet(SecurityAction.InheritanceDemand, Name="FullTrust")]
+   // [PermissionSet(SecurityAction.LinkDemand, Name="FullTrust")]
+  //  [PermissionSet(SecurityAction.InheritanceDemand, Name="FullTrust")]
     public class CodeGeneratorOptions {
-        private IDictionary options = new ListDictionary();
+        private IDictionary options = new Hashtable();
 
         /// <devdoc>
         ///    <para>[To be supplied.]</para>

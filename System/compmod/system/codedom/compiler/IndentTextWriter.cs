@@ -12,7 +12,6 @@ namespace System.CodeDom.Compiler {
     using System;
     using System.IO;
     using System.Text;
-    using System.Security.Permissions;
     using System.Globalization;
 
     /// <devdoc>
@@ -107,14 +106,11 @@ namespace System.CodeDom.Compiler {
         internal string TabString {
             get { return tabString; }
         }
-
-        /// <devdoc>
-        ///    <para>
-        ///       Closes the document being written to.
-        ///    </para>
-        /// </devdoc>
-        public override void Close() {
-            writer.Close();
+        
+        protected override void Dispose(bool disposing)
+        {
+            if(disposing)
+                writer.Dispose();
         }
 
         /// <devdoc>
@@ -247,7 +243,7 @@ namespace System.CodeDom.Compiler {
         ///       Writes out a formatted string, using the same semantics as specified.
         ///    </para>
         /// </devdoc>
-        public override void Write(string format, object arg0) {
+        public void Write(string format, object arg0) {
             OutputTabs();
             writer.Write(format, arg0);
         }
@@ -258,7 +254,7 @@ namespace System.CodeDom.Compiler {
         ///       using the same semantics as specified.
         ///    </para>
         /// </devdoc>
-        public override void Write(string format, object arg0, object arg1) {
+        public void Write(string format, object arg0, object arg1) {
             OutputTabs();
             writer.Write(format, arg0, arg1);
         }
@@ -394,7 +390,7 @@ namespace System.CodeDom.Compiler {
         /// <devdoc>
         ///    <para>[To be supplied.]</para>
         /// </devdoc>
-        public override void WriteLine(string format, object arg0) {
+        public void WriteLine(string format, object arg0) {
             OutputTabs();
             writer.WriteLine(format, arg0);
             tabsPending = true;
@@ -403,7 +399,7 @@ namespace System.CodeDom.Compiler {
         /// <devdoc>
         ///    <para>[To be supplied.]</para>
         /// </devdoc>
-        public override void WriteLine(string format, object arg0, object arg1) {
+        public void WriteLine(string format, object arg0, object arg1) {
             OutputTabs();
             writer.WriteLine(format, arg0, arg1);
             tabsPending = true;

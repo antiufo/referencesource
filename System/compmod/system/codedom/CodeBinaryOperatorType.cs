@@ -7,7 +7,6 @@
 //------------------------------------------------------------------------------
 
 namespace System.CodeDom {
-    using System.Runtime.Remoting;
 
     using System.Diagnostics;
     using System;

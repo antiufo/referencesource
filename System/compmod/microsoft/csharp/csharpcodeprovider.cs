@@ -18,7 +18,6 @@ using System.CodeDom.Compiler;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Globalization;
-using System.Security.Permissions;
 using System.Security.Principal;
 using System.Collections.Generic;
 using System.Runtime.Versioning;
@@ -30,8 +29,8 @@ namespace Microsoft.CSharp {
     /// <devdoc>
     /// <para>[To be supplied.]</para>
     /// </devdoc>
-    [PermissionSet(SecurityAction.LinkDemand, Name="FullTrust")]
-    [PermissionSet(SecurityAction.InheritanceDemand, Name="FullTrust")]
+    //[PermissionSet(SecurityAction.LinkDemand, Name="FullTrust")]
+    //[PermissionSet(SecurityAction.InheritanceDemand, Name="FullTrust")]
     public class CSharpCodeProvider: CodeDomProvider {
         private CSharpCodeGenerator generator;
 
@@ -61,30 +60,30 @@ namespace Microsoft.CSharp {
             return (ICodeGenerator)generator;
         }
 
-        [Obsolete("Callers should not use the ICodeCompiler interface and should instead use the methods directly on the CodeDomProvider class.")]
-        public override ICodeCompiler CreateCompiler() {
-            return (ICodeCompiler)generator;
-        }
+        //[Obsolete("Callers should not use the ICodeCompiler interface and should instead use the methods directly on the CodeDomProvider class.")]
+        //public override ICodeCompiler CreateCompiler() {
+        //    return (ICodeCompiler)generator;
+        //}
 
-        /// <devdoc>
-        /// This method allows a code dom provider implementation to provide a different type converter
-        /// for a given data type.  At design time, a designer may pass data types through this
-        /// method to see if the code dom provider wants to provide an additional converter.  
-        /// A typical way this would be used is if the language this code dom provider implements
-        /// does not support all of the values of the MemberAttributes enumeration, or if the language
-        /// uses different names (Protected instead of Family, for example).  The default 
-        /// implementation just calls TypeDescriptor.GetConverter for the given type.
-        /// </devdoc>
-        public override TypeConverter GetConverter(Type type) {
-            if (type == typeof(MemberAttributes)) {
-                return CSharpMemberAttributeConverter.Default;
-            }
-            else if (type == typeof(TypeAttributes)) {
-                return CSharpTypeAttributeConverter.Default;
-            }
+        ///// <devdoc>
+        ///// This method allows a code dom provider implementation to provide a different type converter
+        ///// for a given data type.  At design time, a designer may pass data types through this
+        ///// method to see if the code dom provider wants to provide an additional converter.  
+        ///// A typical way this would be used is if the language this code dom provider implements
+        ///// does not support all of the values of the MemberAttributes enumeration, or if the language
+        ///// uses different names (Protected instead of Family, for example).  The default 
+        ///// implementation just calls TypeDescriptor.GetConverter for the given type.
+        ///// </devdoc>
+        //public override TypeConverter GetConverter(Type type) {
+        //    if (type == typeof(MemberAttributes)) {
+        //        return CSharpMemberAttributeConverter.Default;
+        //    }
+        //    else if (type == typeof(TypeAttributes)) {
+        //        return CSharpTypeAttributeConverter.Default;
+        //    }
             
-            return base.GetConverter(type);
-        }
+        //    return base.GetConverter(type);
+        //}
         
         public override void GenerateCodeFromMember(CodeTypeMember member, TextWriter writer, CodeGeneratorOptions options) {
             generator.GenerateCodeFromMember(member, writer, options);
@@ -101,7 +100,7 @@ namespace Microsoft.CSharp {
     ///       C# (C Sharp) Code Generator.
     ///    </para>
     /// </devdoc>
-    internal class CSharpCodeGenerator : ICodeCompiler, ICodeGenerator{
+    internal class CSharpCodeGenerator : ICodeGenerator{
         private IndentedTextWriter output;
         private CodeGeneratorOptions options;
         private CodeTypeDeclaration currentClass;
@@ -514,142 +513,142 @@ namespace Microsoft.CSharp {
             return QuoteSnippetStringVerbatimStyle(value);
         }
 
-        /// <devdoc>
-        ///    <para>
-        ///       Processes the <see cref='System.CodeDom.Compiler.CompilerResults'/> returned from compilation.
-        ///    </para>
-        /// </devdoc>
-        private void ProcessCompilerOutputLine(CompilerResults results, string line) {
-            if (outputRegSimple == null) {
-                outputRegWithFileAndLine = 
-                    new Regex(@"(^(.*)(\(([0-9]+),([0-9]+)\)): )(error|warning) ([A-Z]+[0-9]+) ?: (.*)");
-                outputRegSimple =
-                    new Regex(@"(error|warning) ([A-Z]+[0-9]+) ?: (.*)");
-            }
+        ///// <devdoc>
+        /////    <para>
+        /////       Processes the <see cref='System.CodeDom.Compiler.CompilerResults'/> returned from compilation.
+        /////    </para>
+        ///// </devdoc>
+        //private void ProcessCompilerOutputLine(CompilerResults results, string line) {
+        //    if (outputRegSimple == null) {
+        //        outputRegWithFileAndLine = 
+        //            new Regex(@"(^(.*)(\(([0-9]+),([0-9]+)\)): )(error|warning) ([A-Z]+[0-9]+) ?: (.*)");
+        //        outputRegSimple =
+        //            new Regex(@"(error|warning) ([A-Z]+[0-9]+) ?: (.*)");
+        //    }
 
-            //First look for full file info
-            Match m = outputRegWithFileAndLine.Match(line);
-            bool full;
-            if (m.Success) {
-                full = true;
-            }
-            else {
-                m = outputRegSimple.Match(line);
-                full = false;
-            }
+        //    //First look for full file info
+        //    Match m = outputRegWithFileAndLine.Match(line);
+        //    bool full;
+        //    if (m.Success) {
+        //        full = true;
+        //    }
+        //    else {
+        //        m = outputRegSimple.Match(line);
+        //        full = false;
+        //    }
 
-            if (m.Success) {
-                CompilerError ce = new CompilerError();
-                if (full) {
-                    ce.FileName = m.Groups[2].Value;
-                    ce.Line = int.Parse(m.Groups[4].Value, CultureInfo.InvariantCulture);
-                    ce.Column = int.Parse(m.Groups[5].Value, CultureInfo.InvariantCulture);
-                }
-                if (string.Compare(m.Groups[full ? 6 : 1].Value, "warning", StringComparison.OrdinalIgnoreCase) == 0) {
-                    ce.IsWarning = true;
-                }
-                ce.ErrorNumber = m.Groups[full ? 7 : 2].Value;
-                ce.ErrorText = m.Groups[full ? 8 : 3].Value;
+        //    if (m.Success) {
+        //        CompilerError ce = new CompilerError();
+        //        if (full) {
+        //            ce.FileName = m.Groups[2].Value;
+        //            ce.Line = int.Parse(m.Groups[4].Value, CultureInfo.InvariantCulture);
+        //            ce.Column = int.Parse(m.Groups[5].Value, CultureInfo.InvariantCulture);
+        //        }
+        //        if (string.Compare(m.Groups[full ? 6 : 1].Value, "warning", StringComparison.OrdinalIgnoreCase) == 0) {
+        //            ce.IsWarning = true;
+        //        }
+        //        ce.ErrorNumber = m.Groups[full ? 7 : 2].Value;
+        //        ce.ErrorText = m.Groups[full ? 8 : 3].Value;
 
-                results.Errors.Add(ce);
-            }
-        }
+        //        results.Errors.Add(ce);
+        //    }
+        //}
 
-        /// <devdoc>
-        ///    <para>
-        ///       Gets the command arguments from the specified <see cref='System.CodeDom.Compiler.CompilerParameters'/>.
-        ///    </para>
-        /// </devdoc>
-        [ResourceExposure(ResourceScope.None)]
-        [ResourceConsumption(ResourceScope.Machine, ResourceScope.Machine)]
-        private string CmdArgsFromParameters(CompilerParameters options) {
-            StringBuilder sb = new StringBuilder(128);
-            if (options.GenerateExecutable) {
-                sb.Append("/t:exe ");
-                if (options.MainClass != null && options.MainClass.Length > 0) {
-                    sb.Append("/main:");
-                    sb.Append(options.MainClass);
-                    sb.Append(" ");
-                }
-            }
-            else {
-                sb.Append("/t:library ");
-            }
+//        /// <devdoc>
+//        ///    <para>
+//        ///       Gets the command arguments from the specified <see cref='System.CodeDom.Compiler.CompilerParameters'/>.
+//        ///    </para>
+//        /// </devdoc>
+//        [ResourceExposure(ResourceScope.None)]
+//        [ResourceConsumption(ResourceScope.Machine, ResourceScope.Machine)]
+//        private string CmdArgsFromParameters(CompilerParameters options) {
+//            StringBuilder sb = new StringBuilder(128);
+//            if (options.GenerateExecutable) {
+//                sb.Append("/t:exe ");
+//                if (options.MainClass != null && options.MainClass.Length > 0) {
+//                    sb.Append("/main:");
+//                    sb.Append(options.MainClass);
+//                    sb.Append(" ");
+//                }
+//            }
+//            else {
+//                sb.Append("/t:library ");
+//            }
 
-            // Get UTF8 output from the compiler
-            sb.Append("/utf8output ");
+//            // Get UTF8 output from the compiler
+//            sb.Append("/utf8output ");
 
-            string coreAssemblyFileName = options.CoreAssemblyFileName;
+//            string coreAssemblyFileName = options.CoreAssemblyFileName;
 
-            if (String.IsNullOrWhiteSpace(options.CoreAssemblyFileName)) {
-                string probableCoreAssemblyFilePath;
-                if(CodeDomProvider.TryGetProbableCoreAssemblyFilePath(options, out probableCoreAssemblyFilePath)) {
-                    coreAssemblyFileName = probableCoreAssemblyFilePath;
-                }
-            }
+//            if (String.IsNullOrWhiteSpace(options.CoreAssemblyFileName)) {
+//                string probableCoreAssemblyFilePath;
+//                if(CodeDomProvider.TryGetProbableCoreAssemblyFilePath(options, out probableCoreAssemblyFilePath)) {
+//                    coreAssemblyFileName = probableCoreAssemblyFilePath;
+//                }
+//            }
 
-            if (!String.IsNullOrWhiteSpace(coreAssemblyFileName)) {
+//            if (!String.IsNullOrWhiteSpace(coreAssemblyFileName)) {
 
-                sb.Append("/nostdlib+ ");
-                sb.Append("/R:\"").Append(coreAssemblyFileName.Trim()).Append("\" ");
-            }
+//                sb.Append("/nostdlib+ ");
+//                sb.Append("/R:\"").Append(coreAssemblyFileName.Trim()).Append("\" ");
+//            }
 
-            foreach (string s in options.ReferencedAssemblies) {
-                sb.Append("/R:");
-                sb.Append("\"");
-                sb.Append(s);
-                sb.Append("\"");
-                sb.Append(" ");
-            }
+//            foreach (string s in options.ReferencedAssemblies) {
+//                sb.Append("/R:");
+//                sb.Append("\"");
+//                sb.Append(s);
+//                sb.Append("\"");
+//                sb.Append(" ");
+//            }
 
-            sb.Append("/out:");
-            sb.Append("\"");
-            sb.Append(options.OutputAssembly);
-            sb.Append("\"");
-            sb.Append(" ");
+//            sb.Append("/out:");
+//            sb.Append("\"");
+//            sb.Append(options.OutputAssembly);
+//            sb.Append("\"");
+//            sb.Append(" ");
 
-            if (options.IncludeDebugInformation) {
-                sb.Append("/D:DEBUG ");
-                sb.Append("/debug+ ");
-                sb.Append("/optimize- ");
-            }
-            else {
-                sb.Append("/debug- ");
-                sb.Append("/optimize+ ");
-            }
+//            if (options.IncludeDebugInformation) {
+//                sb.Append("/D:DEBUG ");
+//                sb.Append("/debug+ ");
+//                sb.Append("/optimize- ");
+//            }
+//            else {
+//                sb.Append("/debug- ");
+//                sb.Append("/optimize+ ");
+//            }
 
-#if !FEATURE_PAL
-            if (options.Win32Resource != null) {
-                sb.Append("/win32res:\"" + options.Win32Resource + "\" ");
-            }
-#endif // !FEATURE_PAL
+//#if !FEATURE_PAL
+//            if (options.Win32Resource != null) {
+//                sb.Append("/win32res:\"" + options.Win32Resource + "\" ");
+//            }
+//#endif // !FEATURE_PAL
 
-            foreach (string s in options.EmbeddedResources) {
-                sb.Append("/res:\"");
-                sb.Append(s);
-                sb.Append("\" ");
-            }
+//            foreach (string s in options.EmbeddedResources) {
+//                sb.Append("/res:\"");
+//                sb.Append(s);
+//                sb.Append("\" ");
+//            }
 
-            foreach (string s in options.LinkedResources) {
-                sb.Append("/linkres:\"");
-                sb.Append(s);
-                sb.Append("\" ");
-            }
+//            foreach (string s in options.LinkedResources) {
+//                sb.Append("/linkres:\"");
+//                sb.Append(s);
+//                sb.Append("\" ");
+//            }
 
-            if (options.TreatWarningsAsErrors) {
-                sb.Append("/warnaserror ");
-            }
+//            if (options.TreatWarningsAsErrors) {
+//                sb.Append("/warnaserror ");
+//            }
 
-            if (options.WarningLevel >= 0) {
-                sb.Append("/w:" + options.WarningLevel + " ");
-            }
+//            if (options.WarningLevel >= 0) {
+//                sb.Append("/w:" + options.WarningLevel + " ");
+//            }
 
-            if (options.CompilerOptions != null) {
-                sb.Append(options.CompilerOptions + " ");
-            }
+//            if (options.CompilerOptions != null) {
+//                sb.Append(options.CompilerOptions + " ");
+//            }
 
-            return sb.ToString();
-        }
+//            return sb.ToString();
+//        }
 
         /// <devdoc>
         ///    <para>[To be supplied.]</para>
@@ -658,29 +657,29 @@ namespace Microsoft.CSharp {
             Output.WriteLine(st);
         }
 
-        /// <devdoc>
-        ///    <para>[To be supplied.]</para>
-        /// </devdoc>
-        [ResourceExposure(ResourceScope.None)]
-        [ResourceConsumption(ResourceScope.Machine, ResourceScope.Machine)]
-        private string GetResponseFileCmdArgs(CompilerParameters options, string cmdArgs) {
+        ///// <devdoc>
+        /////    <para>[To be supplied.]</para>
+        ///// </devdoc>
+        //[ResourceExposure(ResourceScope.None)]
+        //[ResourceConsumption(ResourceScope.Machine, ResourceScope.Machine)]
+        //private string GetResponseFileCmdArgs(CompilerParameters options, string cmdArgs) {
 
-            string responseFileName = options.TempFiles.AddExtension("cmdline");
+        //    string responseFileName = options.TempFiles.AddExtension("cmdline");
 
-            Stream temp = new FileStream(responseFileName, FileMode.Create, FileAccess.Write, FileShare.Read);
-            try {
-                using (StreamWriter sw = new StreamWriter(temp, Encoding.UTF8)) {
-                    sw.Write(cmdArgs);
-                    sw.Flush();
-                }
-            }
-            finally {
-                temp.Close();
-            }
+        //    Stream temp = new FileStream(responseFileName, FileMode.Create, FileAccess.Write, FileShare.Read);
+        //    try {
+        //        using (StreamWriter sw = new StreamWriter(temp, Encoding.UTF8)) {
+        //            sw.Write(cmdArgs);
+        //            sw.Flush();
+        //        }
+        //    }
+        //    finally {
+        //        temp.Close();
+        //    }
 
-            // Always specify the /noconfig flag (outside of the response file)
-            return "/noconfig /fullpaths @\"" + responseFileName + "\"";
-        }
+        //    // Always specify the /noconfig flag (outside of the response file)
+        //    return "/noconfig /fullpaths @\"" + responseFileName + "\"";
+        //}
 
         private  void OutputIdentifier(string ident) {
             Output.Write(CreateEscapedIdentifier(ident));
@@ -803,7 +802,7 @@ namespace Microsoft.CSharp {
 
         public void GenerateCodeFromMember(CodeTypeMember member, TextWriter writer, CodeGeneratorOptions options) {
             if (this.output != null) {
-                throw new InvalidOperationException(SR.GetString(SR.CodeGenReentrance));
+                throw new InvalidOperationException("CodeGenReentrance");
             }
             this.options = (options == null) ? new CodeGeneratorOptions() : options;
             this.output = new IndentedTextWriter(writer, this.options.IndentString);
@@ -1101,7 +1100,7 @@ namespace Microsoft.CSharp {
                 GenerateLabeledStatement((CodeLabeledStatement)e);
             }
             else {
-                throw new ArgumentException(SR.GetString(SR.InvalidElementType, e.GetType().FullName), "e");
+                throw new ArgumentException("InvalidElementType: " + e.GetType().FullName);
             }
 
             if (e.LinePragma != null) {
@@ -1254,7 +1253,7 @@ namespace Microsoft.CSharp {
                 }
             }
             else {
-                throw new ArgumentException(SR.GetString(SR.InvalidPrimitiveType, e.Value.GetType().ToString()));
+                throw new ArgumentException("InvalidPrimitiveType: "+ e.Value.GetType().ToString());
             }
         }
 
@@ -1414,7 +1413,7 @@ namespace Microsoft.CSharp {
         /// </devdoc>
         private void GenerateCommentStatement(CodeCommentStatement e) {
             if(e.Comment == null)
-                throw new ArgumentException(SR.GetString(SR.Argument_NullComment, "e"), "e");
+                throw new ArgumentException("Argument_NullComment");
             GenerateComment(e.Comment);
         }
 
@@ -1733,7 +1732,7 @@ namespace Microsoft.CSharp {
                     throw new ArgumentNullException("e");
                 }
                 else {
-                    throw new ArgumentException(SR.GetString(SR.InvalidElementType, e.GetType().FullName), "e");
+                    throw new ArgumentException("InvalidElementType:" + e.GetType().FullName);
                 }
             }
         }
@@ -2886,23 +2885,6 @@ namespace Microsoft.CSharp {
                 GenerateDirectives(e.StartDirectives);
             }
         
-            Output.WriteLine("//------------------------------------------------------------------------------");
-            Output.Write("// <");
-            Output.WriteLine(SR.GetString(SR.AutoGen_Comment_Line1));
-            Output.Write("//     ");
-            Output.WriteLine(SR.GetString(SR.AutoGen_Comment_Line2));
-            Output.Write("//     ");
-            Output.Write(SR.GetString(SR.AutoGen_Comment_Line3));
-            Output.WriteLine(System.Environment.Version.ToString());
-            Output.WriteLine("//");
-            Output.Write("//     ");
-            Output.WriteLine(SR.GetString(SR.AutoGen_Comment_Line4));
-            Output.Write("//     ");
-            Output.WriteLine(SR.GetString(SR.AutoGen_Comment_Line5));
-            Output.Write("// </");
-            Output.WriteLine(SR.GetString(SR.AutoGen_Comment_Line1));            
-            Output.WriteLine("//------------------------------------------------------------------------------");
-            Output.WriteLine("");
 
             SortedList importList;            
             // CSharp needs to put assembly attributes after using statements.
@@ -2977,7 +2959,7 @@ namespace Microsoft.CSharp {
             Output.Write("#pragma checksum \"");
             Output.Write(checksumPragma.FileName);
             Output.Write("\" \"");
-            Output.Write(checksumPragma.ChecksumAlgorithmId.ToString("B", CultureInfo.InvariantCulture));
+            Output.Write(checksumPragma.ChecksumAlgorithmId.ToString("B"));
             Output.Write("\" \"");
             if (checksumPragma.ChecksumData != null) {
                 foreach(Byte b in checksumPragma.ChecksumData) {
@@ -3161,7 +3143,7 @@ namespace Microsoft.CSharp {
 
         public void ValidateIdentifier(string value) {
             if (!IsValidIdentifier(value)) {
-                throw new ArgumentException(SR.GetString(SR.InvalidIdentifier, value));
+                throw new ArgumentException("InvalidIdentifier: "+ value);
             }
         }
 
@@ -3194,7 +3176,7 @@ namespace Microsoft.CSharp {
                 return s;
             }
  
-            string lowerCaseString  = s.ToLower( CultureInfo.InvariantCulture).Trim();
+            string lowerCaseString  = s.ToLowerInvariant().Trim();
 
             switch (lowerCaseString) {
                 case "system.int16":            
@@ -3357,460 +3339,24 @@ namespace Microsoft.CSharp {
                 Output.WriteLine(" {");
             }
         }
-
-        [ResourceExposure(ResourceScope.Machine)]
-        [ResourceConsumption(ResourceScope.Machine)]
-        private CompilerResults FromFileBatch(CompilerParameters options, string[] fileNames) {
-            if( options == null) {
-                throw new ArgumentNullException("options");
-            }
-            if (fileNames == null)
-                throw new ArgumentNullException("fileNames");
-
-            new SecurityPermission(SecurityPermissionFlag.UnmanagedCode).Demand();
-
-            string outputFile = null;
-            int retValue = 0;
-
-            CompilerResults results = new CompilerResults(options.TempFiles);
-            SecurityPermission perm1 = new SecurityPermission(SecurityPermissionFlag.ControlEvidence);
-            perm1.Assert();
-            try {
-#pragma warning disable 618
-               results.Evidence = options.Evidence;
-#pragma warning restore 618
-            }
-            finally {
-                 SecurityPermission.RevertAssert();
-            }
-            bool createdEmptyAssembly = false;
-
-            if (options.OutputAssembly == null || options.OutputAssembly.Length == 0) {
-                string extension = (options.GenerateExecutable) ? "exe" : "dll";
-                options.OutputAssembly = results.TempFiles.AddExtension(extension, !options.GenerateInMemory);
-
-                // Create an empty assembly.  This is so that the file will have permissions that
-                // we can later access with our current credential. If we don't do this, the compiler
-                // could end up creating an assembly that we cannot open.
-                new FileStream(options.OutputAssembly, FileMode.Create, FileAccess.ReadWrite).Close();
-                createdEmptyAssembly = true;
-            }
-
-#if FEATURE_PAL
-            string pdbname = "ildb";
-#else
-            string pdbname = "pdb";
-#endif
-            
-            // Don't delete pdbs when debug=false but they have specified pdbonly. 
-            if (options.CompilerOptions!= null
-                    && -1 != CultureInfo.InvariantCulture.CompareInfo.IndexOf(options.CompilerOptions,"/debug:pdbonly", CompareOptions.IgnoreCase))
-                results.TempFiles.AddExtension(pdbname, true);
-            else
-                results.TempFiles.AddExtension(pdbname);
-
-            string args = CmdArgsFromParameters(options) + " " + JoinStringArray(fileNames, " ");
-
-            // Use a response file if the compiler supports it
-            string responseFileArgs = GetResponseFileCmdArgs(options, args);
-            string trueArgs = null;
-            if (responseFileArgs != null) {
-                trueArgs = args;
-                args = responseFileArgs;
-            }
-
-            Compile(options,
-                RedistVersionInfo.GetCompilerPath(provOptions, CompilerName),
-                CompilerName,
-                args,
-                ref outputFile,
-                ref retValue,
-                trueArgs);
-
-            results.NativeCompilerReturnValue = retValue;
-
-            // only look for errors/warnings if the compile failed or the caller set the warning level
-            if (retValue != 0 || options.WarningLevel > 0) {
-
-                // The output of the compiler is in UTF8
-                string [] lines = ReadAllLines(outputFile, Encoding.UTF8, FileShare.ReadWrite);
-                foreach (string line in lines) {
-                    results.Output.Add(line);
-
-                    ProcessCompilerOutputLine(results, line);
-                }
-
-                // Delete the empty assembly if we created one
-                if (retValue != 0 && createdEmptyAssembly)
-                    File.Delete(options.OutputAssembly);
-            }
-
-            if (results.Errors.HasErrors || !options.GenerateInMemory) {
-
-                results.PathToAssembly = options.OutputAssembly;
-                return results;
-            }
-
-            // Read assembly into memory:
-            byte[] assemblyBuff = File.ReadAllBytes(options.OutputAssembly);
-
-            // Read symbol file into mempory and ignore any errors that may be encountered:
-            // (This functionality was added in NetFx 4.5, errors must be ignored to ensure compatibility)
-            byte[] symbolsBuff = null;
-            try {
-
-                String symbFileName = options.TempFiles.BasePath + "." + pdbname;
-            
-                if (File.Exists(symbFileName))
-                    symbolsBuff = File.ReadAllBytes(symbFileName);
-
-            } catch {
-                symbolsBuff = null;
-            }
-           
-            // Now get permissions and load assembly from buffer into the CLR:
-            SecurityPermission perm = new SecurityPermission(SecurityPermissionFlag.ControlEvidence);
-            perm.Assert();
-
-            try {
-
-                #pragma warning disable 618 // Load with evidence is obsolete - this warning is passed on via the options.Evidence property
-                results.CompiledAssembly = Assembly.Load(assemblyBuff, symbolsBuff, options.Evidence);
-                #pragma warning restore 618
-
-            } finally {
-                SecurityPermission.RevertAssert();
-            }
-
-            return results;
-        }
         
-        private static string[] ReadAllLines(String file, Encoding encoding, FileShare share)
-        {
-            using(FileStream stream = File.Open(file, FileMode.Open, FileAccess.Read, share))
-            {
-                String line;
-                List<String> lines = new List<String>();
-                
-                using (StreamReader sr = new StreamReader(stream, encoding))
-                    while ((line = sr.ReadLine()) != null)
-                        lines.Add(line);
-
-                return lines.ToArray();
-            }
-        }
-
-        /// <internalonly/>
-        CompilerResults ICodeCompiler.CompileAssemblyFromDom(CompilerParameters options, CodeCompileUnit e) {
-            if( options == null) {
-                throw new ArgumentNullException("options");
-            }
-
-            try {                
-                return FromDom(options, e);
-            }
-            finally {
-                options.TempFiles.SafeDelete();
-            }
-        }
-
-        /// <internalonly/>
-        [ResourceExposure(ResourceScope.Machine)]
-        [ResourceConsumption(ResourceScope.Machine)]
-        CompilerResults ICodeCompiler.CompileAssemblyFromFile(CompilerParameters options, string fileName) {
-            if( options == null) {
-                throw new ArgumentNullException("options");
-            }
-
-            try {
-                return FromFile(options, fileName);
-            }
-            finally {
-                options.TempFiles.SafeDelete();
-            }
-        }
-
-        /// <internalonly/>
-        CompilerResults ICodeCompiler.CompileAssemblyFromSource(CompilerParameters options, string source) {
-            if( options == null) {
-                throw new ArgumentNullException("options");
-            }
-
-            try {
-                return FromSource(options, source);
-            }
-            finally {
-                options.TempFiles.SafeDelete();
-            }
-        }
-
-        /// <internalonly/>
-        CompilerResults ICodeCompiler.CompileAssemblyFromSourceBatch(CompilerParameters options, string[] sources) {
-            if( options == null) {
-                throw new ArgumentNullException("options");
-            }
-
-            try {
-                return FromSourceBatch(options, sources);
-            }
-            finally {
-                options.TempFiles.SafeDelete();
-            }
-        }
+        ///// <devdoc>
+        /////    <para>
+        /////       Because CodeCompileUnit and CompilerParameters both have a referenced assemblies 
+        /////       property, they must be reconciled. However, because you can compile multiple
+        /////       compile units with one set of options, it will simply merge them.
+        /////    </para>
+        ///// </devdoc>
+        //private void ResolveReferencedAssemblies(CompilerParameters options, CodeCompileUnit e) {
+        //    if (e.ReferencedAssemblies.Count > 0) {
+        //        foreach(string assemblyName in e.ReferencedAssemblies) {
+        //            if (!options.ReferencedAssemblies.Contains(assemblyName)) {
+        //                options.ReferencedAssemblies.Add(assemblyName);
+        //            }
+        //        }
+        //    }
+        //}
         
-        /// <internalonly/>
-        [ResourceExposure(ResourceScope.Machine)]
-        [ResourceConsumption(ResourceScope.Machine)] 
-        CompilerResults ICodeCompiler.CompileAssemblyFromFileBatch(CompilerParameters options, string[] fileNames) {
-            if( options == null) {
-                throw new ArgumentNullException("options");
-            }
-            if (fileNames == null)
-                throw new ArgumentNullException("fileNames");
-
-            try {
-                // Try opening the files to make sure they exists.  This will throw an exception
-                // if it doesn't
-                foreach (string fileName in fileNames) {
-                    using (Stream str = File.OpenRead(fileName)) { }
-                }
-
-                return FromFileBatch(options, fileNames);
-            }
-            finally {
-                options.TempFiles.SafeDelete();
-            }
-        }
-
-        /// <internalonly/>
-        CompilerResults ICodeCompiler.CompileAssemblyFromDomBatch(CompilerParameters options, CodeCompileUnit[] ea) {
-            if( options == null) {
-                throw new ArgumentNullException("options");
-            }
-
-            try {
-                return FromDomBatch(options, ea);
-            }
-            finally {
-                options.TempFiles.SafeDelete();
-            }
-        }
-        
-        [ResourceExposure(ResourceScope.Machine)]
-        [ResourceConsumption(ResourceScope.Machine)]
-        internal void Compile(CompilerParameters options, string compilerDirectory, string compilerExe, string arguments,
-                              ref string outputFile, ref int nativeReturnValue, string trueArgs) {
-            string errorFile = null;
-            outputFile = options.TempFiles.AddExtension("out");
-            
-            // We try to execute the compiler with a full path name.
-            string fullname = Path.Combine(compilerDirectory, compilerExe);
-            if (File.Exists(fullname)) {
-                string trueCmdLine = null;
-                if (trueArgs != null)
-                    trueCmdLine = "\"" + fullname + "\" " + trueArgs;
-                nativeReturnValue = Executor.ExecWaitWithCapture(options.SafeUserToken, "\"" + fullname + "\" " + arguments,
-                                                                 Environment.CurrentDirectory, options.TempFiles, ref outputFile, ref errorFile,
-                                                                 trueCmdLine);
-            }
-            else {
-                throw new InvalidOperationException(SR.GetString(SR.CompilerNotFound, fullname));
-            }
-        }
-
-        /// <devdoc>
-        ///    <para>
-        ///       Compiles the specified compile unit and options, and returns the results
-        ///       from the compilation.
-        ///    </para>
-        /// </devdoc>
-        private CompilerResults FromDom(CompilerParameters options, CodeCompileUnit e) {
-            if( options == null) {
-                throw new ArgumentNullException("options");
-            }
-            new SecurityPermission(SecurityPermissionFlag.UnmanagedCode).Demand();
-                        
-            CodeCompileUnit[] units = new CodeCompileUnit[1];
-            units[0] = e;
-            return FromDomBatch(options, units);
-        }
-
-        /// <devdoc>
-        ///    <para>
-        ///       Compiles the specified file using the specified options, and returns the
-        ///       results from the compilation.
-        ///    </para>
-        /// </devdoc>
-        [ResourceExposure(ResourceScope.Machine)]
-        [ResourceConsumption(ResourceScope.Machine)]
-        private CompilerResults FromFile(CompilerParameters options, string fileName) {
-            if( options == null) {
-                throw new ArgumentNullException("options");
-            }
-            if (fileName == null)
-                throw new ArgumentNullException("fileName");
-
-            new SecurityPermission(SecurityPermissionFlag.UnmanagedCode).Demand();
-            
-            // Try opening the file to make sure it exists.  This will throw an exception
-            // if it doesn't
-            using (Stream str = File.OpenRead(fileName)) { }
-
-            string[] filenames = new string[1];
-            filenames[0] = fileName;
-            return FromFileBatch(options, filenames);
-        }
-        
-        /// <devdoc>
-        ///    <para>
-        ///       Compiles the specified source code using the specified options, and
-        ///       returns the results from the compilation.
-        ///    </para>
-        /// </devdoc>
-         private CompilerResults FromSource(CompilerParameters options, string source) {
-             if( options == null) {
-                 throw new ArgumentNullException("options");
-             }
-
-            new SecurityPermission(SecurityPermissionFlag.UnmanagedCode).Demand();
-
-            string[] sources = new string[1];
-            sources[0] = source;
-
-            return FromSourceBatch(options, sources);
-        }
-        
-        /// <devdoc>
-        ///    <para>
-        ///       Compiles the specified compile units and
-        ///       options, and returns the results from the compilation.
-        ///    </para>
-        /// </devdoc>
-        [ResourceExposure(ResourceScope.None)]
-        [ResourceConsumption(ResourceScope.Machine, ResourceScope.Machine)]
-        private CompilerResults FromDomBatch(CompilerParameters options, CodeCompileUnit[] ea) {
-            if( options == null) {
-                throw new ArgumentNullException("options");
-            }
-            if (ea == null)
-                throw new ArgumentNullException("ea");
-
-            new SecurityPermission(SecurityPermissionFlag.UnmanagedCode).Demand();
-
-            string[] filenames = new string[ea.Length];
-
-            CompilerResults results = null;
-
-#if !FEATURE_PAL
-            // the extra try-catch is here to mitigate exception filter injection attacks. 
-            try {
-                WindowsImpersonationContext impersonation = Executor.RevertImpersonation();
-                try {
-#endif // !FEATURE_PAL
-                    for (int i = 0; i < ea.Length; i++) {
-                        if (ea[i] == null)
-                            continue;       // the other two batch methods just work if one element is null, so we'll match that. 
-                        
-                        ResolveReferencedAssemblies(options, ea[i]);
-                        filenames[i] = options.TempFiles.AddExtension(i + FileExtension);
-                        Stream temp = new FileStream(filenames[i], FileMode.Create, FileAccess.Write, FileShare.Read);
-                        try {
-                            using (StreamWriter sw = new StreamWriter(temp, Encoding.UTF8)){
-                                ((ICodeGenerator)this).GenerateCodeFromCompileUnit(ea[i], sw, Options);
-                                sw.Flush();
-                            }
-                        }
-                        finally {
-                            temp.Close();
-                        }
-                    }
-
-                    results = FromFileBatch(options, filenames);
-#if !FEATURE_PAL
-                }
-                finally {
-                    Executor.ReImpersonate(impersonation);
-                }
-            }
-            catch {
-                throw;
-            }
-#endif // !FEATURE_PAL
-            return results;
-        }
-
-        /// <devdoc>
-        ///    <para>
-        ///       Because CodeCompileUnit and CompilerParameters both have a referenced assemblies 
-        ///       property, they must be reconciled. However, because you can compile multiple
-        ///       compile units with one set of options, it will simply merge them.
-        ///    </para>
-        /// </devdoc>
-        private void ResolveReferencedAssemblies(CompilerParameters options, CodeCompileUnit e) {
-            if (e.ReferencedAssemblies.Count > 0) {
-                foreach(string assemblyName in e.ReferencedAssemblies) {
-                    if (!options.ReferencedAssemblies.Contains(assemblyName)) {
-                        options.ReferencedAssemblies.Add(assemblyName);
-                    }
-                }
-            }
-        }
-
-        /// <devdoc>
-        ///    <para>
-        ///       Compiles the specified source code strings using the specified options, and
-        ///       returns the results from the compilation.
-        ///    </para>
-        /// </devdoc>
-        [ResourceExposure(ResourceScope.None)]
-        [ResourceConsumption(ResourceScope.Machine, ResourceScope.Machine)]
-        private CompilerResults FromSourceBatch(CompilerParameters options, string[] sources) {
-            if( options == null) {
-                throw new ArgumentNullException("options");
-            }
-            if (sources == null)
-                throw new ArgumentNullException("sources");
-
-            new SecurityPermission(SecurityPermissionFlag.UnmanagedCode).Demand();
-
-            string[] filenames = new string[sources.Length];
-
-            CompilerResults results = null;
-#if !FEATURE_PAL
-            // the extra try-catch is here to mitigate exception filter injection attacks. 
-            try {
-                WindowsImpersonationContext impersonation = Executor.RevertImpersonation();
-                try {      
-#endif // !FEATURE_PAL
-                    for (int i = 0; i < sources.Length; i++) {
-                        string name = options.TempFiles.AddExtension(i + FileExtension);
-                        Stream temp = new FileStream(name, FileMode.Create, FileAccess.Write, FileShare.Read);
-                        try {
-                            using (StreamWriter sw = new StreamWriter(temp, Encoding.UTF8)) {
-                                sw.Write(sources[i]);
-                                sw.Flush();
-                            }
-                        }
-                        finally {
-                            temp.Close();
-                        }
-                        filenames[i] = name;
-                   }
-                   results = FromFileBatch(options, filenames);
-#if !FEATURE_PAL
-                }
-                finally {
-                    Executor.ReImpersonate(impersonation);
-                }
-            }   
-            catch {
-                throw;
-            }
-#endif // !FEATURE_PAL
-
-            return results;
-        }
-
         /// <devdoc>
         ///    <para>Joins the specified string arrays.</para>
         /// </devdoc>
@@ -3840,7 +3386,7 @@ namespace Microsoft.CSharp {
         void ICodeGenerator.GenerateCodeFromType(CodeTypeDeclaration e, TextWriter w, CodeGeneratorOptions o) {
             bool setLocal = false;
             if (output != null && w != output.InnerWriter) {
-                throw new InvalidOperationException(SR.GetString(SR.CodeGenOutputWriter));
+                throw new InvalidOperationException("CodeGenOutputWriter");
             }
             if (output == null) {
                 setLocal = true;
@@ -3863,7 +3409,7 @@ namespace Microsoft.CSharp {
         void ICodeGenerator.GenerateCodeFromExpression(CodeExpression e, TextWriter w, CodeGeneratorOptions o) {
             bool setLocal = false;
             if (output != null && w != output.InnerWriter) {
-                throw new InvalidOperationException(SR.GetString(SR.CodeGenOutputWriter));
+                throw new InvalidOperationException("CodeGenOutputWriter");
             }
             if (output == null) {
                 setLocal = true;
@@ -3886,7 +3432,7 @@ namespace Microsoft.CSharp {
         void ICodeGenerator.GenerateCodeFromCompileUnit(CodeCompileUnit e, TextWriter w, CodeGeneratorOptions o) {
             bool setLocal = false;
             if (output != null && w != output.InnerWriter) {
-                throw new InvalidOperationException(SR.GetString(SR.CodeGenOutputWriter));
+                throw new InvalidOperationException("CodeGenOutputWriter");
             }
             if (output == null) {
                 setLocal = true;
@@ -3914,7 +3460,7 @@ namespace Microsoft.CSharp {
         void ICodeGenerator.GenerateCodeFromNamespace(CodeNamespace e, TextWriter w, CodeGeneratorOptions o) {
             bool setLocal = false;
             if (output != null && w != output.InnerWriter) {
-                throw new InvalidOperationException(SR.GetString(SR.CodeGenOutputWriter));
+                throw new InvalidOperationException("CodeGenOutputWriter");
             }
             if (output == null) {
                 setLocal = true;
@@ -3937,7 +3483,7 @@ namespace Microsoft.CSharp {
         void ICodeGenerator.GenerateCodeFromStatement(CodeStatement e, TextWriter w, CodeGeneratorOptions o) {
             bool setLocal = false;
             if (output != null && w != output.InnerWriter) {
-                throw new InvalidOperationException(SR.GetString(SR.CodeGenOutputWriter));
+                throw new InvalidOperationException("CodeGenOutputWriter");
             }
             if (output == null) {
                 setLocal = true;
@@ -3960,233 +3506,233 @@ namespace Microsoft.CSharp {
     #endregion class CSharpCodeGenerator
 
 
-    #region class CSharpTypeAttributeConverter
+    // #region class CSharpTypeAttributeConverter
 
-    internal class CSharpTypeAttributeConverter : CSharpModifierAttributeConverter {
-        private static volatile string[] names;
-        private static volatile object[] values;
-        private static volatile CSharpTypeAttributeConverter defaultConverter;
+    //internal class CSharpTypeAttributeConverter : CSharpModifierAttributeConverter {
+    //    private static volatile string[] names;
+    //    private static volatile object[] values;
+    //    private static volatile CSharpTypeAttributeConverter defaultConverter;
        
-        private CSharpTypeAttributeConverter() {
-            // no  need to create an instance; use Default
-        }
+    //    private CSharpTypeAttributeConverter() {
+    //        // no  need to create an instance; use Default
+    //    }
 
-        public static CSharpTypeAttributeConverter Default {
-            get {
-                if (defaultConverter == null) {
-                    defaultConverter = new CSharpTypeAttributeConverter();
-                }
-                return defaultConverter;
-            }
-        }
+    //    public static CSharpTypeAttributeConverter Default {
+    //        get {
+    //            if (defaultConverter == null) {
+    //                defaultConverter = new CSharpTypeAttributeConverter();
+    //            }
+    //            return defaultConverter;
+    //        }
+    //    }
     
-        /// <devdoc>
-        ///      Retrieves an array of names for attributes.
-        /// </devdoc>
-        protected override string[] Names {
-            get {
-                if (names == null) {
-                    names = new string[] {
-                        "Public",
-                        "Internal"
-                    };
-                }
+    //    /// <devdoc>
+    //    ///      Retrieves an array of names for attributes.
+    //    /// </devdoc>
+    //    protected override string[] Names {
+    //        get {
+    //            if (names == null) {
+    //                names = new string[] {
+    //                    "Public",
+    //                    "Internal"
+    //                };
+    //            }
                 
-                return names;
-            }
-        }
+    //            return names;
+    //        }
+    //    }
         
-        /// <devdoc>
-        ///      Retrieves an array of values for attributes.
-        /// </devdoc>
-        protected override object[] Values {
-            get {
-                if (values == null) {
-                    values = new object[] {
-                        (object)TypeAttributes.Public,
-                        (object)TypeAttributes.NotPublic                       
-                    };
-                }
+    //    /// <devdoc>
+    //    ///      Retrieves an array of values for attributes.
+    //    /// </devdoc>
+    //    protected override object[] Values {
+    //        get {
+    //            if (values == null) {
+    //                values = new object[] {
+    //                    (object)TypeAttributes.Public,
+    //                    (object)TypeAttributes.NotPublic                       
+    //                };
+    //            }
                 
-                return values;
-            }
-        }
+    //            return values;
+    //        }
+    //    }
 
-        protected override object DefaultValue {
-            get {
-                return TypeAttributes.NotPublic;
-            }
-        }
-    }  // CSharpTypeAttributeConverter
+    //    protected override object DefaultValue {
+    //        get {
+    //            return TypeAttributes.NotPublic;
+    //        }
+    //    }
+    //}  // CSharpTypeAttributeConverter
 
-    #endregion class CSharpTypeAttributeConverter
+    //#endregion class CSharpTypeAttributeConverter
 
 
-    #region class CSharpMemberAttributeConverter
+    //#region class CSharpMemberAttributeConverter
 
-    internal class CSharpMemberAttributeConverter : CSharpModifierAttributeConverter {
-        private static volatile string[] names;
-        private static volatile object[] values;
-        private static volatile CSharpMemberAttributeConverter defaultConverter;
+    //internal class CSharpMemberAttributeConverter : CSharpModifierAttributeConverter {
+    //    private static volatile string[] names;
+    //    private static volatile object[] values;
+    //    private static volatile CSharpMemberAttributeConverter defaultConverter;
         
-        private CSharpMemberAttributeConverter() {
-            // no  need to create an instance; use Default
-        }
+    //    private CSharpMemberAttributeConverter() {
+    //        // no  need to create an instance; use Default
+    //    }
 
-        public static CSharpMemberAttributeConverter Default {
-            get {
-                if (defaultConverter == null) {
-                    defaultConverter = new CSharpMemberAttributeConverter();
-                }
-                return defaultConverter;
-            }
-        }
+    //    public static CSharpMemberAttributeConverter Default {
+    //        get {
+    //            if (defaultConverter == null) {
+    //                defaultConverter = new CSharpMemberAttributeConverter();
+    //            }
+    //            return defaultConverter;
+    //        }
+    //    }
     
-        /// <devdoc>
-        ///      Retrieves an array of names for attributes.
-        /// </devdoc>
-        protected override string[] Names {
-            get {
-                if (names == null) {
-                    names = new string[] {
-                        "Public",
-                        "Protected",
-                        "Protected Internal",
-                        "Internal",
-                        "Private"
-                    };
-                }
+    //    /// <devdoc>
+    //    ///      Retrieves an array of names for attributes.
+    //    /// </devdoc>
+    //    protected override string[] Names {
+    //        get {
+    //            if (names == null) {
+    //                names = new string[] {
+    //                    "Public",
+    //                    "Protected",
+    //                    "Protected Internal",
+    //                    "Internal",
+    //                    "Private"
+    //                };
+    //            }
                 
-                return names;
-            }
-        }
+    //            return names;
+    //        }
+    //    }
         
-        /// <devdoc>
-        ///      Retrieves an array of values for attributes.
-        /// </devdoc>
-        protected override object[] Values {
-            get {
-                if (values == null) {
-                    values = new object[] {
-                        (object)MemberAttributes.Public,
-                        (object)MemberAttributes.Family,
-                        (object)MemberAttributes.FamilyOrAssembly,
-                        (object)MemberAttributes.Assembly,
-                        (object)MemberAttributes.Private
-                    };
-                }
+    //    /// <devdoc>
+    //    ///      Retrieves an array of values for attributes.
+    //    /// </devdoc>
+    //    protected override object[] Values {
+    //        get {
+    //            if (values == null) {
+    //                values = new object[] {
+    //                    (object)MemberAttributes.Public,
+    //                    (object)MemberAttributes.Family,
+    //                    (object)MemberAttributes.FamilyOrAssembly,
+    //                    (object)MemberAttributes.Assembly,
+    //                    (object)MemberAttributes.Private
+    //                };
+    //            }
                 
-                return values;
-            }
-        }
+    //            return values;
+    //        }
+    //    }
 
-        protected override object DefaultValue {
-            get {
-                return MemberAttributes.Private;
-            }
-        }
-    }  // CSharpMemberAttributeConverter
+    //    protected override object DefaultValue {
+    //        get {
+    //            return MemberAttributes.Private;
+    //        }
+    //    }
+    //}  // CSharpMemberAttributeConverter
 
-    #endregion class CSharpMemberAttributeConverter
+    //#endregion class CSharpMemberAttributeConverter
 
 
     #region class CSharpModifierAttributeConverter
 
-    /// <devdoc>
-    ///      This type converter provides common values for MemberAttributes
-    /// </devdoc>
-    internal abstract class CSharpModifierAttributeConverter : TypeConverter {          
+    ///// <devdoc>
+    /////      This type converter provides common values for MemberAttributes
+    ///// </devdoc>
+    //internal abstract class CSharpModifierAttributeConverter : TypeConverter {          
 
-        protected abstract object[] Values { get; }
-        protected abstract string[] Names  { get; }
-        protected abstract object DefaultValue { get; }
+    //    protected abstract object[] Values { get; }
+    //    protected abstract string[] Names  { get; }
+    //    protected abstract object DefaultValue { get; }
         
        
 
-        /// <devdoc>
-        ///      We override this because we can convert from string types.
-        /// </devdoc>
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
-            if (sourceType == typeof(string)) {
-                return true;
-            }
+    //    /// <devdoc>
+    //    ///      We override this because we can convert from string types.
+    //    /// </devdoc>
+    //    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
+    //        if (sourceType == typeof(string)) {
+    //            return true;
+    //        }
             
-            return base.CanConvertFrom(context, sourceType);
-        }
+    //        return base.CanConvertFrom(context, sourceType);
+    //    }
 
-        /// <devdoc>
-        ///      Converts the given object to the converter's native type.
-        /// </devdoc>
-        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
-            if (value is string) {
-                string name = (string)value;
-                string[] names = Names;
-                for (int i = 0; i < names.Length; i++) {
-                    if (names[i].Equals(name)) {
-                        return Values[i];
-                    }
-                }
-            }
+    //    /// <devdoc>
+    //    ///      Converts the given object to the converter's native type.
+    //    /// </devdoc>
+    //    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
+    //        if (value is string) {
+    //            string name = (string)value;
+    //            string[] names = Names;
+    //            for (int i = 0; i < names.Length; i++) {
+    //                if (names[i].Equals(name)) {
+    //                    return Values[i];
+    //                }
+    //            }
+    //        }
             
-            return DefaultValue;
-        }
+    //        return DefaultValue;
+    //    }
 
-        /// <devdoc>
-        ///      Converts the given object to another type.  The most common types to convert
-        ///      are to and from a string object.  The default implementation will make a call
-        ///      to ToString on the object if the object is valid and if the destination
-        ///      type is string.  If this cannot convert to the desitnation type, this will
-        ///      throw a NotSupportedException.
-        /// </devdoc>
-        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType) {
-            if (destinationType == null) {
-                throw new ArgumentNullException("destinationType");
-            }
+    //    /// <devdoc>
+    //    ///      Converts the given object to another type.  The most common types to convert
+    //    ///      are to and from a string object.  The default implementation will make a call
+    //    ///      to ToString on the object if the object is valid and if the destination
+    //    ///      type is string.  If this cannot convert to the desitnation type, this will
+    //    ///      throw a NotSupportedException.
+    //    /// </devdoc>
+    //    public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType) {
+    //        if (destinationType == null) {
+    //            throw new ArgumentNullException("destinationType");
+    //        }
             
-            if (destinationType == typeof(string)) {
-                object[] modifiers = Values;
-                for (int i = 0; i < modifiers.Length; i++) {
-                    if (modifiers[i].Equals(value)) {
-                        return Names[i];
-                    }
-                }
+    //        if (destinationType == typeof(string)) {
+    //            object[] modifiers = Values;
+    //            for (int i = 0; i < modifiers.Length; i++) {
+    //                if (modifiers[i].Equals(value)) {
+    //                    return Names[i];
+    //                }
+    //            }
                 
-                return SR.GetString(SR.toStringUnknown);
-            }
+    //            return "toStringUnknown);
+    //        }
 
-            return base.ConvertTo(context, culture, value, destinationType);
-        }
+    //        return base.ConvertTo(context, culture, value, destinationType);
+    //    }
 
-        /// <devdoc>
-        ///      Determines if the list of standard values returned from
-        ///      GetStandardValues is an exclusive list.  If the list
-        ///      is exclusive, then no other values are valid, such as
-        ///      in an enum data type.  If the list is not exclusive,
-        ///      then there are other valid values besides the list of
-        ///      standard values GetStandardValues provides.
-        /// </devdoc>
-        public override bool GetStandardValuesExclusive(ITypeDescriptorContext context) {
-            return true;
-        }
+    //    /// <devdoc>
+    //    ///      Determines if the list of standard values returned from
+    //    ///      GetStandardValues is an exclusive list.  If the list
+    //    ///      is exclusive, then no other values are valid, such as
+    //    ///      in an enum data type.  If the list is not exclusive,
+    //    ///      then there are other valid values besides the list of
+    //    ///      standard values GetStandardValues provides.
+    //    /// </devdoc>
+    //    public override bool GetStandardValuesExclusive(ITypeDescriptorContext context) {
+    //        return true;
+    //    }
         
-        /// <devdoc>
-        ///      Determines if this object supports a standard set of values
-        ///      that can be picked from a list.
-        /// </devdoc>
-        public override bool GetStandardValuesSupported(ITypeDescriptorContext context) {
-            return true;
-        }
+    //    /// <devdoc>
+    //    ///      Determines if this object supports a standard set of values
+    //    ///      that can be picked from a list.
+    //    /// </devdoc>
+    //    public override bool GetStandardValuesSupported(ITypeDescriptorContext context) {
+    //        return true;
+    //    }
         
-        /// <devdoc>
-        ///      Retrieves a collection containing a set of standard values
-        ///      for the data type this validator is designed for.  This
-        ///      will return null if the data type does not support a
-        ///      standard set of values.
-        /// </devdoc>
-        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context) { 
-            return new StandardValuesCollection(Values);
-        }
-    }  // CSharpModifierAttributeConverter
+    //    /// <devdoc>
+    //    ///      Retrieves a collection containing a set of standard values
+    //    ///      for the data type this validator is designed for.  This
+    //    ///      will return null if the data type does not support a
+    //    ///      standard set of values.
+    //    /// </devdoc>
+    //    public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context) { 
+    //        return new StandardValuesCollection(Values);
+    //    }
+    //}  // CSharpModifierAttributeConverter
 
     #endregion class CSharpModifierAttributeConverter
 }
